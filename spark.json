@@ -1,7 +1,7 @@
 {
    "name": "MAX31856",
    "author": "John Calcote <john.calcote@gmail.com>",
-   "license": "MIT",
+   "license": "CC BY-SA 3.0",
    "version": "0.0.10",
    "description": "A library for controlling and reading thermocouple probes using a MAX31856 chip"
 }

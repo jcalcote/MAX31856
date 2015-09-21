@@ -18,7 +18,7 @@
 #ifndef MAX31856_H
 #define MAX31856_H
 
-#include "Arduino.h"
+#include "application.h"
 
 // MAX31856 Registers
 // Register 0x00: CR0
