@@ -1,5 +1,5 @@
 {
-   "name": "MAX31856 library",
+   "name": "MAX31856",
    "author": "John Calcote <john.calcote@gmail.com>",
    "license": "MIT",
    "version": "0.0.10",
