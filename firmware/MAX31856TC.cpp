@@ -30,11 +30,11 @@
 //
 // This library handles the full range of temperatures, including negative temperatures.
 
-#include "MAX31856.h"
+#include "MAX31856TC.h"
 
 // Define which pins are connected to the MAX31856.  The DRDY and FAULT outputs
 // from the MAX31856 are not used in this library.
-MAX31856::MAX31856(int cs)
+MAX31856TC::MAX31856TC(int cs)
 {
     _cs = cs;
 
@@ -61,7 +61,7 @@ MAX31856::MAX31856(int cs)
 
 
 // Write the given data to the MAX31856 register
-void MAX31856::writeRegister(byte registerNum, byte data)
+void MAX31856TC::writeRegister(byte registerNum, byte data)
 {
     // Sanity check on the register number
     if (registerNum >= NUM_REGISTERS)
@@ -88,7 +88,7 @@ void MAX31856::writeRegister(byte registerNum, byte data)
 // the conversion takes place in the background within 155 ms, or longer depending on the
 // number of samples in each reading (see CR1).
 // Returns the temperature, or an error (FAULT_OPEN, FAULT_VOLTAGE or NO_MAX31856)
-double	MAX31856::readThermocouple(byte unit)
+double	MAX31856TC::readThermocouple(byte unit)
 {
     double temperature;
     long data;
@@ -142,7 +142,7 @@ double	MAX31856::readThermocouple(byte unit)
 // Read the junction (IC) temperature either in Degree Celsius or Fahrenheit.
 // This routine also makes sure that communication with the MAX31856 is working and
 // will return NO_MAX31856 if not.
-double	MAX31856::readJunction(byte unit)
+double	MAX31856TC::readJunction(byte unit)
 {
     double temperature;
     long data, temperatureOffset;
@@ -202,7 +202,7 @@ double	MAX31856::readJunction(byte unit)
 
 // When the MAX31856 is uninitialzed and either the junction or thermocouple temperature is read it will return 0.
 // This is a valid temperature, but could indicate that the registers need to be initialized.
-double MAX31856::verifyMAX31856()
+double MAX31856TC::verifyMAX31856()
 {
     long data, reg;
 
@@ -249,7 +249,7 @@ double MAX31856::verifyMAX31856()
 
 // Read in 32 bits of data from MAX31856 chip. Minimum clock pulse width is 100 ns
 // so no delay is required between signal toggles.
-long MAX31856::readData()
+long MAX31856TC::readData()
 {
     long data = 0;
     data |= (SPI.transfer(0) << 24) & 0xFF000000;

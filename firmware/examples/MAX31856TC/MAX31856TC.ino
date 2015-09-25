@@ -1,15 +1,12 @@
-// This is sample Arduino code for the Maxim MAX31856 thermocouple IC
+// This is sample Photon code for the Maxim MAX31856 thermocouple IC
 // http://datasheets.maximintegrated.com/en/ds/MAX31856.pdf
 //
 // Written by Peter Easton (www.whizoo.com)
+// Updated by John Calcote for Photon firmware-based SPI
 // Released under CC BY-SA 3.0 license
 //
 // Look for the MAX31856 breakout boards on www.whizoo.com and eBay
 // http://stores.ebay.com/madeatrade
-//
-// Looking to build yourself a reflow oven?  It isn't that difficult to
-// do!  Take a look at the build guide here:
-// http://www.whizoo.com
 //
 // Library Implementation Details
 // ==============================
@@ -35,13 +32,9 @@
 //
 // When connecting the thermocouple, remember the 2 wires are polarized.  If temperatures go up when you expect
 // them to go down just reverse the wires.  No damage will be done to the MAX31856.
-//
-// Change History:
-// 25 June 2015        Initial Version
-// 31 July 2015        Fixed spelling and formatting problems
 
 
-#include <MAX31856.h>
+#include <MAX31856TC.h>
 
 // This sample code works with this breakout board:
 // http://www.ebay.com/itm/301671408961
@@ -118,7 +111,4 @@ void printTemperature(double temperature) {
   }
   Serial.print(" ");
 }
-
-
-
 

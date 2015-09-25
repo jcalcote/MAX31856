@@ -8,8 +8,8 @@
 // Look for the MAX31856 breakout boards on www.whizoo.com and eBay (madeatrade)
 // http://stores.ebay.com/madeatrade
 
-#ifndef MAX31856_H
-#define MAX31856_H
+#ifndef MAX31856TC_H
+#define MAX31856TC_H
 
 #include "application.h"
 
@@ -75,10 +75,10 @@
 #define FAHRENHEIT                              1
 
 
-class MAX31856
+class MAX31856TC
 {
 public:
-    MAX31856(int cs);
+    MAX31856TC(int cs);
 
     void    writeRegister(byte, byte);
     double  readThermocouple(byte unit);
@@ -92,5 +92,5 @@ private:
     byte    _registers[NUM_REGISTERS];        // Shadow registers.  Registers can be restored if power to MAX31855 is lost
 };
 
-#endif  // MAX31856_H
+#endif  // MAX31856TC_H
 
