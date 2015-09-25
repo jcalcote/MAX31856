@@ -1,4 +1,4 @@
-This is the GitHub source code repository for the Arduino MAX31856 library and example code for Arduino.
+This is the GitHub source code repository for the Photon MAX31856 library and example code for Photon.
 
 This library offers the following features:
 a. Returns both the junction (IC) and thermocouple temperatures
@@ -9,13 +9,10 @@ e. Automatic initialization of registers after losing power
 
 In this folder are:
 1. README - this file
-2. MAX31856 folder - the Arduino library and example code for driving the MAX31856
+2. firmware folder - the Arduino library and example code for driving the MAX31856
 
 Look for the MAX31856 breakout boards on www.whizoo.com and eBay (madeatrade)
 http://stores.ebay.com/madeatrade
-
-Looking to build yourself a reflow oven?  It isn't that difficult to do!  Take a look at the build guide here:
-http://www.whizoo.com
 
 Library Implementation Details
 ==============================
@@ -26,16 +23,4 @@ The MAX31856 differs from earlier thermocouple IC's in that it has registers tha
 A lot of configuration options appear in the .H file.  Of particular note is the line frequency filtering, which defaults to 60Hz (USA and others).  If your line voltage is 50Hz you should set CR0_NOISE_FILTER_50HZ.
 
 This library handles the full range of temperatures, including negative temperatures.
-
-
-Change History:
-25 June 2015        Initial Version
-31 July 2015        Fixed spelling and formatting problems
-
-
-To install the MAX31856 library, please refer to:
-http://arduino.cc/en/Guide/Libraries
-
-Peter Easton 2015
-Whizoo.com
 
