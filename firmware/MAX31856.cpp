@@ -42,7 +42,7 @@ MAX31856::MAX31856(int cs)
     SPI.begin(_cs);
     SPI.setDataMode(SPI_MODE0);
     SPI.setBitOrder(MSBFIRST);
-    SPI.setClockSpeed(10, MHz);
+    SPI.setClockSpeed(10, MHZ);
 
     // Add input pull up to MISO to detect MAX fault
     pinMode(MISO, INPUT_PULLUP);
@@ -107,7 +107,7 @@ double	MAX31856::readThermocouple(byte unit)
 
     // If there is no communication from the IC then data will be all 1's because
     // of the internal pullup on the data line (INPUT_PULLUP)
-    if (data == 0xFFFFFFFF)
+    if (data == -1)
         return NO_MAX31856;
 
     // If the value is zero then the temperature could be exactly 0.000 (rare), or
@@ -161,7 +161,7 @@ double	MAX31856::readJunction(byte unit)
 
     // If there is no communication from the IC then data will be all 1's because
     // of the internal pullup on the data line (INPUT_PULLUP)
-    if (data == 0xFFFFFFFF)
+    if (data == -1)
         return NO_MAX31856;
 
     // If the value is zero then the temperature could be exactly 0.000 (rare), or
@@ -220,7 +220,7 @@ double MAX31856::verifyMAX31856()
 
     // If there is no communication from the IC then data will be all 1's because
     // of the internal pullup on the data line (INPUT_PULLUP)
-    if (data == 0xFFFFFFFF)
+    if (data == -1)
         return NO_MAX31856;
 
     // Are the registers set to their correct values?
