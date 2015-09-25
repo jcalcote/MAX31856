@@ -251,10 +251,11 @@ double MAX31856::verifyMAX31856()
 // so no delay is required between signal toggles.
 long MAX31856::readData()
 {
-    long data = (SPI.transfer(0)  ) & 0x000000FF;
-    data |= (SPI.transfer(0) <<  8) & 0x0000FF00;
-    data |= (SPI.transfer(0) << 16) & 0x00FF0000;
+    long data = 0;
     data |= (SPI.transfer(0) << 24) & 0xFF000000;
+    data |= (SPI.transfer(0) << 16) & 0x00FF0000;
+    data |= (SPI.transfer(0) <<  8) & 0x0000FF00;
+    data |= (SPI.transfer(0)      ) & 0x000000FF;
     return data;
 }
 
