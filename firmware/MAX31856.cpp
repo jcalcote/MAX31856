@@ -2,14 +2,11 @@
 // http://datasheets.maximintegrated.com/en/ds/MAX31856.pdf
 //
 // Written by Peter Easton (www.whizoo.com)
+// Modify for Photon firmware-based SPI by John Calcote
 // Released under CC BY-SA 3.0 license
 //
 // Look for the MAX31856 breakout boards on www.whizoo.com and eBay (madeatrade)
 // http://stores.ebay.com/madeatrade
-//
-// Looking to build yourself a reflow oven?  It isn't that difficult to
-// do!  Take a look at the build guide here:
-// http://www.whizoo.com
 //
 // Library Implementation Details
 // ==============================
@@ -32,38 +29,33 @@
 // defaults to 60Hz (USA and others).  If your line voltage is 50Hz you should set CR0_NOISE_FILTER_50HZ.
 //
 // This library handles the full range of temperatures, including negative temperatures.
-//
-//
-// Change History:
-// 25 June 2015        Initial Version
-// 31 July 2015        Fixed spelling and formatting problems
 
-#include	"MAX31856.h"
-
+#include "MAX31856.h"
 
 // Define which pins are connected to the MAX31856.  The DRDY and FAULT outputs
 // from the MAX31856 are not used in this library.
-MAX31856::MAX31856(int sdi, int sdo, int cs, int clk)
+MAX31856::MAX31856(int cs)
 {
-    _sdi = sdi;
-    _sdo = sdo;
     _cs = cs;
-    _clk = clk;
 
-    // Initialize all the data pins
-    pinMode(_sdi, OUTPUT);
+    // Initialize SPI firmware API
+    SPI.begin(_cs);
+    SPI.setDataMode(SPI_MODE0);
+    SPI.setBitOrder(MSBFIRST);
+    SPI.setClockSpeed(10, MHz);
+
+    // Add input pull up to MISO to detect MAX fault
+    pinMode(MISO, INPUT_PULLUP);
+
+    // Manage cs line separately
     pinMode(_cs, OUTPUT);
-    pinMode(_clk, OUTPUT);
-    // Use a pullup on the data line to be able to detect "no communication"
-    pinMode(_sdo, INPUT_PULLUP);
 
-    // Default output pins state
+    // Default cs pin state
     digitalWrite(_cs, HIGH);
-    digitalWrite(_clk, HIGH);
 
     // Set up the shadow registers with the default values
     byte reg[NUM_REGISTERS] = {0x00,0x03,0xff,0x7f,0xc0,0x7f,0xff,0x80,0,0,0,0};
-    for (int i=0; i<NUM_REGISTERS; i++)
+    for (int i = 0; i < NUM_REGISTERS; i++)
         _registers[i] = reg[i];
 }
 
@@ -79,10 +71,10 @@ void MAX31856::writeRegister(byte registerNum, byte data)
     digitalWrite(_cs, LOW);
 
     // Write the register number, with the MSB set to indicate a write
-    writeByte(WRITE_OPERATION(registerNum));
+    SPI.transfer(WRITE_OPERATION(registerNum));
 
     // Write the register value
-    writeByte(data);
+    SPI.transfer(data);
 
     // Deselect MAX31856 chip
     digitalWrite(_cs, HIGH);
@@ -105,7 +97,7 @@ double	MAX31856::readThermocouple(byte unit)
     digitalWrite(_cs, LOW);
 
     // Read data starting with register 0x0c
-    writeByte(READ_OPERATION(0x0c));
+    SPI.transfer(READ_OPERATION(0x0c));
 
     // Read 4 registers
     data = readData();
@@ -135,15 +127,15 @@ double	MAX31856::readThermocouple(byte unit)
         // Negative temperatures have been automagically handled by the shift above :-)
 
         // Convert to Celsius
-        temperature = (double) data * 0.0078125;
+        temperature = (double)data * 0.0078125;
 	
         // Convert to Fahrenheit if desired
         if (unit == FAHRENHEIT)
-            temperature = (temperature * 9.0/5.0)+ 32;
+            temperature = temperature * 9.0 / 5.0 + 32;
     }
 
     // Return the temperature
-    return (temperature);
+    return temperature;
 }
 
 
@@ -159,7 +151,7 @@ double	MAX31856::readJunction(byte unit)
     digitalWrite(_cs, LOW);
 
     // Read data starting with register 8
-    writeByte(READ_OPERATION(8));
+    SPI.transfer(READ_OPERATION(8));
 
     // Read 4 registers
     data = readData();
@@ -201,10 +193,10 @@ double	MAX31856::readJunction(byte unit)
 	
     // Convert to Fahrenheit if desired
     if (unit == FAHRENHEIT)
-        temperature = (temperature * 9.0/5.0)+ 32;
+        temperature = temperature * 9.0 / 5.0 + 32;
 
     // Return the temperature
-    return (temperature);
+    return temperature;
 }
 
 
@@ -218,7 +210,7 @@ double MAX31856::verifyMAX31856()
     digitalWrite(_cs, LOW);
 
     // Read data starting with register 0
-    writeByte(READ_OPERATION(0));
+    SPI.transfer(READ_OPERATION(0));
 
     // Read 4 registers
     data = readData();
@@ -232,7 +224,7 @@ double MAX31856::verifyMAX31856()
         return NO_MAX31856;
 
     // Are the registers set to their correct values?
-    reg = ((long)_registers[0]<<24) + ((long)_registers[1]<<16) + ((long)_registers[2]<<8) + _registers[3];
+    reg = ((long)_registers[0] << 24) + ((long)_registers[1] << 16) + ((long)_registers[2] << 8) + _registers[3];
     if (reg == data)
         return 0;
 
@@ -241,11 +233,11 @@ double MAX31856::verifyMAX31856()
     digitalWrite(_cs, LOW);
 
     // Start writing from register 0
-    writeByte(WRITE_OPERATION(0));
+    SPI.transfer(WRITE_OPERATION(0));
 
     // Write the register values
     for (int i=0; i< NUM_REGISTERS; i++)
-        writeByte(_registers[i]);
+        SPI.transfer(_registers[i]);
 
     // Deselect MAX31856 chip
     digitalWrite(_cs, HIGH);
@@ -259,43 +251,10 @@ double MAX31856::verifyMAX31856()
 // so no delay is required between signal toggles.
 long MAX31856::readData()
 {
-    long data = 0;
-    unsigned long bitMask = 0x80000000;
-	
-    // Shift in 32 bits of data
-    while (bitMask)
-    {
-        digitalWrite(_clk, LOW);
-
-        // Store the data bit
-        if (digitalRead(_sdo))
-            data += bitMask;
-
-        digitalWrite(_clk, HIGH);
-
-        bitMask >>= 1;
-    }
-	
-    return(data);
-}
-
-
-// Write out 8 bits of data to the MAX31856 chip. Minimum clock pulse width is 100 ns
-// so no delay is required between signal toggles.
-void MAX31856::writeByte(byte data)
-{
-    byte bitMask = 0x80;
-
-    // Shift out 8 bits of data
-    while (bitMask)
-    {
-        // Write out the data bit.  Has to be held for 35ns, so no delay required
-        digitalWrite(_sdi, data & bitMask? HIGH: LOW);
-
-        digitalWrite(_clk, LOW);
-        digitalWrite(_clk, HIGH);
-
-        bitMask >>= 1;
-    }
+    long data = (SPI.transfer(0)  ) & 0x000000FF;
+    data |= (SPI.transfer(0) <<  8) & 0x0000FF00;
+    data |= (SPI.transfer(0) << 16) & 0x00FF0000;
+    data |= (SPI.transfer(0) << 24) & 0xFF000000;
+    return data;
 }
 

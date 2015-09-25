@@ -2,18 +2,11 @@
 // http://datasheets.maximintegrated.com/en/ds/MAX31856.pdf
 //
 // Written by Peter Easton (www.whizoo.com)
+// Modify for Photon firmware-based SPI by John Calcote
 // Released under CC BY-SA 3.0 license
 //
 // Look for the MAX31856 breakout boards on www.whizoo.com and eBay (madeatrade)
 // http://stores.ebay.com/madeatrade
-//
-// Looking to build yourself a reflow oven?  It isn't that difficult to
-// do!  Take a look at the build guide here:
-// http://www.whizoo.com
-//
-// Change History:
-// 25 June 2015        Initial Version
-// 31 July 2015        Fixed spelling and formatting problems
 
 #ifndef MAX31856_H
 #define MAX31856_H
@@ -82,10 +75,10 @@
 #define FAHRENHEIT                              1
 
 
-class	MAX31856
+class MAX31856
 {
 public:
-    MAX31856(int, int, int, int);           // SDI, SDO, CS, CLK (DRDY and FAULT are not used)
+    MAX31856(int cs);
 
     void    writeRegister(byte, byte);
     double  readThermocouple(byte unit);
@@ -93,10 +86,11 @@ public:
 
 private:
     long    readData();
-    void    writeByte(byte);
     double  verifyMAX31856();
-    int     _sdi, _sdo, _cs, _clk;
-    byte    _registers[NUM_REGISTERS];      // Shadow registers.  Registers can be restored if power to MAX31855 is lost
+
+    int     _cs;
+    byte    _registers[NUM_REGISTERS];        // Shadow registers.  Registers can be restored if power to MAX31855 is lost
 };
 
 #endif  // MAX31856_H
+
