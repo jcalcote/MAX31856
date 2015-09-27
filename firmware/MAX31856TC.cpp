@@ -39,8 +39,10 @@ MAX31856TC::MAX31856TC(int cs)
     _cs = cs;
 
     // Initialize SPI firmware API
+    // SPI mode 1 or 3 required - chip can detect polarity and
+    // can work either way but SPI must read on the rising edge
     SPI.begin(_cs);
-    SPI.setDataMode(SPI_MODE0);
+    SPI.setDataMode(SPI_MODE1);
     SPI.setBitOrder(MSBFIRST);
     SPI.setClockSpeed(10, MHZ);
 
