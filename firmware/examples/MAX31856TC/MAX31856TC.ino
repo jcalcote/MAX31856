@@ -43,10 +43,8 @@
 // than that one each I/O pin.  For example, the ATmega328 supports up to 20mA.  So it is possible to power the
 // board using I/O pins for power - so you can turn the board on and off (if you want to).
 // FAULT and DRDY are not used by the library (see above)
-#define SCK    3
-#define CS     4
-#define SDI    5
-#define SDO    6
+#define CS1  A2
+#deifne CS2  A1
 
 // MAX31856 Initial settings (see MAX31856.h and the MAX31856 datasheet)
 // The default noise filter is 60Hz, suitable for the USA
@@ -54,7 +52,9 @@
 #define CR1_INIT  (CR1_AVERAGE_2_SAMPLES + CR1_THERMOCOUPLE_TYPE_K)
 #define MASK_INIT (~(MASK_VOLTAGE_UNDER_OVER_FAULT + MASK_THERMOCOUPLE_OPEN_FAULT))
 
-MAX31856 *temperature;
+MAX31856TC* p1;
+MAX31856TC* p2;
+
 
 void setup() {
   // Display temperatures using the serial port
@@ -63,13 +63,18 @@ void setup() {
   Serial.println("MAX31856 Sample application");
   
   // Define the pins used to communicate with the MAX31856
-  temperature = new MAX31856(SDI, SDO, CS, SCK);
+  p1 = new MAX31856TC(CS1);
+  p1 = new MAX31856TC(CS2);
   
   // Initializing the MAX31855's registers
-  temperature->writeRegister(REGISTER_CR0, CR0_INIT);
-  temperature->writeRegister(REGISTER_CR1, CR1_INIT);
-  temperature->writeRegister(REGISTER_MASK, MASK_INIT);
+  p1->writeRegister(REGISTER_CR0, CR0_INIT);
+  p1->writeRegister(REGISTER_CR1, CR1_INIT);
+  p1->writeRegister(REGISTER_MASK, MASK_INIT);
   
+  p2->writeRegister(REGISTER_CR0, CR0_INIT);
+  p2->writeRegister(REGISTER_CR1, CR1_INIT);
+  p2->writeRegister(REGISTER_MASK, MASK_INIT);
+
   // Wait for the first sample to be taken
   delay(200);
 }
@@ -79,15 +84,20 @@ void loop () {
   float t;
   
   // Display the junction (IC) temperature
-  t = temperature->readJunction(CELSIUS);
-  Serial.print("Junction (IC) temperature =");
+  t = p1->readJunction(CELSIUS);
+  Serial.print("Junction (IC) temperature = ");
   printTemperature(t);
   
-  // Display the thermocouple temperature
-  t = temperature->readThermocouple(CELSIUS);
-  Serial.print("  Thermocouple temperature = ");
+  // Display the thermocouple temperatures
+  t = p1->readThermocouple(CELSIUS);
+  Serial.print("  Thermocouple 1 temperature = ");
   printTemperature(t);
   
+  // Display the thermocouple temperatures
+  t = p2->readThermocouple(CELSIUS);
+  Serial.print("  Thermocouple 2 temperature = ");
+  printTemperature(t);
+
   Serial.println();
   delay(1000);
 }
