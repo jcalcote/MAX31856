@@ -44,7 +44,7 @@
 // board using I/O pins for power - so you can turn the board on and off (if you want to).
 // FAULT and DRDY are not used by the library (see above)
 #define CS1  A2
-#deifne CS2  A1
+#define CS2  A1
 
 // MAX31856 Initial settings (see MAX31856.h and the MAX31856 datasheet)
 // The default noise filter is 60Hz, suitable for the USA
