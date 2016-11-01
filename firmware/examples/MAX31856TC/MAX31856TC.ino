@@ -64,7 +64,7 @@ void setup() {
   
   // Define the pins used to communicate with the MAX31856
   p1 = new MAX31856TC(CS1);
-  p1 = new MAX31856TC(CS2);
+  p2 = new MAX31856TC(CS2);
   
   // Initializing the MAX31855's registers
   p1->writeRegister(REGISTER_CR0, CR0_INIT);
